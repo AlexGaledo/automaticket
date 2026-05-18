@@ -34,9 +34,9 @@ export default function AuthPage({ onEnter, dark, onToggleDark }: AuthPageProps)
               className="italic"
               style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100, 'wght' 350" }}
             >
-              auto
+              Auto
             </span>
-            ticket<span className="text-clay-500">.</span>
+            maticket<span className="text-clay-500">.</span>
           </h1>
 
           <p
