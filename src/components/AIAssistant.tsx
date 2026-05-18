@@ -79,42 +79,42 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
 
   if (variant === 'page') {
     return (
-      <div className="flex flex-col h-full rounded-xl border border-outline-variant shadow-sm bg-surface-container-lowest overflow-hidden">
-        <div className="p-lg border-b border-outline-variant flex items-center gap-md bg-primary-container text-on-primary">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
-            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+      <div className="flex flex-col h-full rounded-xl border border-slate-200 dark:border-slate-700 shadow-card bg-white dark:bg-slate-800 overflow-hidden theme-dark">
+        <div className="p-lg border-b border-slate-200 dark:border-slate-700 flex items-center gap-md bg-gradient-to-r from-indigo-50 to-indigo-50/80 dark:from-indigo-950/30 dark:to-indigo-950/20">
+          <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-600">
+            <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
           </div>
           <div>
-            <h4 className="font-bold font-sans text-[18px]">AI Assistant</h4>
-            <div className="flex items-center gap-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-              <span className="text-label-sm opacity-80 uppercase tracking-tighter">Active Now</span>
+            <h4 className="font-bold font-sans text-[18px] text-slate-900 dark:text-slate-100">AI Assistant</h4>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-tighter font-semibold">Active Now</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-grow p-lg overflow-y-auto bg-surface-container-low/30 space-y-lg">
+        <div className="flex-grow p-lg overflow-y-auto bg-slate-50/40 dark:bg-slate-900/30 space-y-lg scrollbar-thin">
           {messages.map((m, i) => (
-            <div key={i}>
+            <div key={i} className="animate-fade-in-fast" style={{ animationDelay: `${i * 0.05}s` }}>
               <div
-                className={`p-lg rounded-xl border shadow-sm text-on-surface-variant font-body-md max-w-[90%] ${
+                className={`p-lg rounded-xl border shadow-sm font-body-md text-[15px] leading-relaxed max-w-[90%] theme-dark ${
                   m.isTicketNotice
-                    ? 'rounded-tl-none bg-error/5 border-error/30 text-on-surface'
+                    ? 'rounded-tl-none bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-slate-800 dark:text-slate-200'
                     : m.role === 'assistant'
-                    ? 'rounded-tl-none bg-white border-outline-variant'
-                    : 'rounded-br-none bg-primary-fixed ml-auto border-outline-variant'
+                    ? 'rounded-tl-none bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                    : 'rounded-br-none bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 ml-auto text-slate-800 dark:text-slate-200'
                 }`}
               >
                 {m.isTicketNotice && (
-                  <div className="flex items-center gap-sm mb-xs text-error font-label-md">
+                  <div className="flex items-center gap-sm mb-xs text-red-600 dark:text-red-400 text-sm font-semibold">
                     <span className="material-symbols-outlined text-[18px]">add_task</span>
                     Ticket Created
                   </div>
                 )}
                 {m.text}
               </div>
-              <span className="text-[10px] text-secondary mt-xs block ml-xs font-label-md uppercase">
-                {m.role === 'assistant' ? 'Assistant' : 'You'} • Just Now
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block ml-1 font-medium uppercase tracking-wider">
+                {m.role === 'assistant' ? 'Assistant' : 'You'} &bull; Just Now
               </span>
             </div>
           ))}
@@ -125,7 +125,7 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
                 <button
                   key={action}
                   onClick={() => handleSend(action)}
-                  className="bg-white border border-outline-variant px-md py-sm rounded-full text-body-sm hover:border-primary hover:text-primary transition-all"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-md py-sm rounded-full text-sm text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:shadow-sm"
                 >
                   {action}
                 </button>
@@ -133,16 +133,16 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
             </div>
           )}
 
-          <div className="p-md bg-surface-container rounded-lg border border-outline-variant flex items-center gap-md">
-            <span className="material-symbols-outlined text-primary">info</span>
-            <p className="text-body-sm text-secondary">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
+          <div className="p-md bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-md theme-dark">
+            <span className="material-symbols-outlined text-indigo-500 dark:text-indigo-400 text-[20px]">info</span>
+            <p className="text-sm text-slate-500 dark:text-slate-400">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
           </div>
         </div>
 
-        <div className="p-lg border-t border-outline-variant bg-white">
+        <div className="p-lg border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 theme-dark">
           <div className="relative">
             <textarea
-              className="w-full border border-outline-variant rounded-xl p-md text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none placeholder:text-outline-variant outline-none"
+              className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-md text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 theme-dark"
               placeholder="Describe your issue or ask a question..."
               rows={3}
               value={input}
@@ -150,61 +150,61 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
               onKeyDown={handleKeyDown}
             />
             <div className="absolute bottom-3 right-3 flex gap-sm">
-              <button className="p-sm text-secondary hover:text-primary transition-colors">
+              <button className="p-sm text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                 <span className="material-symbols-outlined">attach_file</span>
               </button>
               <button
                 onClick={() => handleSend(input)}
                 disabled={loading || !input.trim()}
-                className="bg-primary text-on-primary p-sm rounded-lg shadow-md active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
+                className="bg-indigo-600 text-white p-sm rounded-lg shadow-sm active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700"
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
               </button>
             </div>
           </div>
-          <p className="text-center text-[11px] text-outline mt-md font-label-md">Powered by AutoTicket Core AI v2.4</p>
+          <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-3 font-medium">Powered by Automaticket Core AI v2.4</p>
         </div>
       </div>
     )
   }
 
   return (
-    <aside className="fixed right-0 top-0 h-screen w-[360px] bg-surface-container-lowest border-l border-outline-variant z-50 flex flex-col">
-      <div className="p-lg border-b border-outline-variant flex items-center gap-md bg-primary-container text-on-primary">
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
-          <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+    <aside className="fixed right-0 top-0 h-screen w-[360px] bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 z-50 flex flex-col shadow-elevated theme-dark">
+      <div className="p-lg border-b border-slate-200 dark:border-slate-700 flex items-center gap-md bg-gradient-to-r from-indigo-50 to-indigo-50/80 dark:from-indigo-950/30 dark:to-indigo-950/20">
+        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-600">
+          <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
         </div>
         <div>
-          <h4 className="font-bold font-sans text-[18px]">AI Assistant</h4>
-          <div className="flex items-center gap-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-            <span className="text-label-sm opacity-80 uppercase tracking-tighter">Active Now</span>
+          <h4 className="font-bold font-sans text-[18px] text-slate-900 dark:text-slate-100">AI Assistant</h4>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-tighter font-semibold">Active Now</span>
           </div>
         </div>
       </div>
 
-      <div className="flex-grow p-lg overflow-y-auto bg-surface-container-low/30 space-y-lg">
+      <div className="flex-grow p-lg overflow-y-auto bg-slate-50/40 dark:bg-slate-900/30 space-y-lg scrollbar-thin">
         {messages.map((m, i) => (
           <div key={i}>
             <div
-              className={`p-lg rounded-xl border shadow-sm text-on-surface-variant font-body-md max-w-[90%] ${
+              className={`p-lg rounded-xl border shadow-sm font-body-md text-[15px] leading-relaxed max-w-[90%] theme-dark ${
                 m.isTicketNotice
-                  ? 'rounded-tl-none bg-error/5 border-error/30 text-on-surface'
+                  ? 'rounded-tl-none bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-slate-800 dark:text-slate-200'
                   : m.role === 'assistant'
-                  ? 'rounded-tl-none bg-white border-outline-variant'
-                  : 'rounded-br-none bg-primary-fixed ml-auto border-outline-variant'
-                }`}
+                  ? 'rounded-tl-none bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                  : 'rounded-br-none bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 ml-auto text-slate-800 dark:text-slate-200'
+              }`}
             >
               {m.isTicketNotice && (
-                <div className="flex items-center gap-sm mb-xs text-error font-label-md">
+                <div className="flex items-center gap-sm mb-xs text-red-600 dark:text-red-400 text-sm font-semibold">
                   <span className="material-symbols-outlined text-[18px]">add_task</span>
                   Ticket Created
                 </div>
               )}
               {m.text}
             </div>
-            <span className="text-[10px] text-secondary mt-xs block ml-xs font-label-md uppercase">
-              {m.role === 'assistant' ? 'Assistant' : 'You'} • Just Now
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block ml-1 font-medium uppercase tracking-wider">
+              {m.role === 'assistant' ? 'Assistant' : 'You'} &bull; Just Now
             </span>
           </div>
         ))}
@@ -215,7 +215,7 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
               <button
                 key={action}
                 onClick={() => handleSend(action)}
-                className="bg-white border border-outline-variant px-md py-sm rounded-full text-body-sm hover:border-primary hover:text-primary transition-all"
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-md py-sm rounded-full text-sm text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:shadow-sm"
               >
                 {action}
               </button>
@@ -223,16 +223,16 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
           </div>
         )}
 
-        <div className="p-md bg-surface-container rounded-lg border border-outline-variant flex items-center gap-md">
-          <span className="material-symbols-outlined text-primary">info</span>
-          <p className="text-body-sm text-secondary">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
+        <div className="p-md bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-md theme-dark">
+          <span className="material-symbols-outlined text-indigo-500 dark:text-indigo-400 text-[20px]">info</span>
+          <p className="text-sm text-slate-500 dark:text-slate-400">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
         </div>
       </div>
 
-      <div className="p-lg border-t border-outline-variant bg-white">
+      <div className="p-lg border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 theme-dark">
         <div className="relative">
           <textarea
-            className="w-full border border-outline-variant rounded-xl p-md text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none placeholder:text-outline-variant outline-none"
+            className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-md text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 theme-dark"
             placeholder="Describe your issue or ask a question..."
             rows={3}
             value={input}
@@ -240,19 +240,19 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
             onKeyDown={handleKeyDown}
           />
           <div className="absolute bottom-3 right-3 flex gap-sm">
-            <button className="p-sm text-secondary hover:text-primary transition-colors">
+            <button className="p-sm text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
               <span className="material-symbols-outlined">attach_file</span>
             </button>
             <button
               onClick={() => handleSend(input)}
               disabled={loading || !input.trim()}
-              className="bg-primary text-on-primary p-sm rounded-lg shadow-md active:scale-95 transition-all flex items-center justify-center disabled:opacity-50"
+              className="bg-indigo-600 text-white p-sm rounded-lg shadow-sm active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700"
             >
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
             </button>
           </div>
         </div>
-        <p className="text-center text-[11px] text-outline mt-md font-label-md">Powered by AutoTicket Core AI v2.4</p>
+        <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-3 font-medium">Powered by Automaticket Core AI v2.4</p>
       </div>
     </aside>
   )

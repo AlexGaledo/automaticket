@@ -60,3 +60,28 @@ export async function updateTicketStatus(id: string, status: string): Promise<Ba
   }
   return res.json()
 }
+
+export interface KnowledgeResult {
+  content: string
+  updated_at: string
+}
+
+export async function getKnowledge(): Promise<KnowledgeResult> {
+  const res = await fetch(`${API_BASE}/knowledge`)
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`)
+  }
+  return res.json()
+}
+
+export async function updateKnowledge(content: string): Promise<KnowledgeResult> {
+  const res = await fetch(`${API_BASE}/knowledge`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  })
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`)
+  }
+  return res.json()
+}

@@ -1,8 +1,121 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-background text-on-background font-sans;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}
+
+@layer components {
+  .bg-app-gradient {
+    background:
+      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(79 70 229 / 0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(124 58 237 / 0.04) 0%, transparent 50%),
+      #F8FAFC;
+  }
+
+  .dark .bg-app-gradient {
+    background:
+      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(129 140 248 / 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(167 139 250 / 0.06) 0%, transparent 50%),
+      #0F172A;
+  }
+
+  .bg-app-gradient-intense {
+    background:
+      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(79 70 229 / 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(124 58 237 / 0.06) 0%, transparent 50%),
+      #FFFFFF;
+  }
+
+  .dark .bg-app-gradient-intense {
+    background:
+      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(129 140 248 / 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(167 139 250 / 0.10) 0%, transparent 50%),
+      #1E293B;
+  }
+
+  .bg-header-gradient {
+    background:
+      linear-gradient(135deg, rgb(79 70 229 / 0.06), rgb(124 58 237 / 0.04)),
+      #FFFFFF;
+  }
+
+  .dark .bg-header-gradient {
+    background:
+      linear-gradient(135deg, rgb(129 140 248 / 0.10), rgb(167 139 250 / 0.08)),
+      #1E293B;
+  }
+
+  .card-gradient {
+    background: linear-gradient(135deg, #FFFFFF, #F8FAFC);
+  }
+
+  .dark .card-gradient {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+  }
+
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    @apply shadow-card-hover -translate-y-0.5;
+  }
+
+  .dark .card-hover:hover {
+    box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  }
+
+  .brand-gradient {
+    @apply bg-gradient-to-r from-indigo-600 to-violet-600;
+  }
+
+  .brand-gradient-text {
+    @apply bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .theme-dark {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-500;
+  }
+}
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
+.dark * {
+  scrollbar-color: #475569 transparent;
 }

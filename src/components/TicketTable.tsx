@@ -9,25 +9,25 @@ interface TicketTableProps {
 }
 
 const priorityColors: Record<string, string> = {
-  High: 'bg-error-container text-on-error-container',
-  Med: 'bg-tertiary-fixed text-on-tertiary-fixed',
-  Low: 'bg-secondary-container text-on-secondary-container',
-  Urgent: 'bg-error-container text-on-error-container',
-  Normal: 'bg-surface-container text-on-surface',
+  High: 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300',
+  Med: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300',
+  Low: 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
+  Urgent: 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300',
+  Normal: 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
 }
 
 const statusStyles: Record<string, string> = {
-  Resolved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'In Progress': 'bg-blue-50 text-blue-700 border-blue-200',
-  Escalated: 'bg-orange-50 text-orange-700 border-orange-200',
+  Resolved: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+  'In Progress': 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+  Escalated: 'bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800',
 }
 
 const priorityDot: Record<string, string> = {
-  High: 'bg-error',
-  Med: 'bg-tertiary',
-  Low: 'bg-secondary',
-  Urgent: 'bg-error',
-  Normal: 'bg-primary',
+  High: 'bg-red-500',
+  Med: 'bg-amber-500',
+  Low: 'bg-slate-400',
+  Urgent: 'bg-red-500',
+  Normal: 'bg-indigo-500',
 }
 
 export default function TicketTable({ tickets, variant, onResolve, resolvingId, compact }: TicketTableProps) {
@@ -36,48 +36,48 @@ export default function TicketTable({ tickets, variant, onResolve, resolvingId, 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-container-low border-b border-outline-variant">
-              <th className="px-lg py-md font-label-md text-label-md text-secondary uppercase tracking-wider">Client & Ticket ID</th>
-              <th className="px-lg py-md font-label-md text-label-md text-secondary uppercase tracking-wider">Issue Description</th>
-              <th className="px-lg py-md font-label-md text-label-md text-secondary uppercase tracking-wider">Priority</th>
-              <th className="px-lg py-md font-label-md text-label-md text-secondary uppercase tracking-wider">Time Escalated</th>
-              <th className="px-lg py-md font-label-md text-label-md text-secondary uppercase tracking-wider text-right">Actions</th>
+            <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+              <th className="px-lg py-md text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Client & Ticket ID</th>
+              <th className="px-lg py-md text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Issue Description</th>
+              <th className="px-lg py-md text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Priority</th>
+              <th className="px-lg py-md text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Time Escalated</th>
+              <th className="px-lg py-md text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
             {tickets.map((t) => (
-              <tr key={t.id} className="hover:bg-surface-container-low transition-colors">
-                <td className={`px-lg py-md ${t.borderColor} border-l-4`}>
+              <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                <td className={`px-lg py-md ${t.borderColor}`}>
                   <div className="flex items-center gap-md">
-                    <div className="h-10 w-10 rounded-full bg-secondary-container flex items-center justify-center font-bold text-on-secondary-container">
+                    <div className="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-400 text-sm">
                       {t.initials}
                     </div>
                     <div>
-                      <p className="font-body-md text-body-md font-bold text-on-surface">{t.clientName}</p>
-                      <p className="font-label-sm text-label-sm text-secondary">{t.id}</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.clientName}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t.id}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-lg py-md max-w-xs">
-                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">{t.subject}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 truncate">{t.subject}</p>
                 </td>
                 <td className="px-lg py-md">
-                  <span className={`px-sm py-xs ${priorityColors[t.priority] || priorityColors.Normal} font-label-sm text-label-sm rounded-lg`}>
+                  <span className={`px-2 py-0.5 ${priorityColors[t.priority] || priorityColors.Normal} text-xs font-semibold rounded`}>
                     {t.priority}
                   </span>
                 </td>
-                <td className="px-lg py-md font-body-sm text-body-sm text-secondary">{t.timeAgo}</td>
+                <td className="px-lg py-md text-sm text-slate-500 dark:text-slate-400">{t.timeAgo}</td>
                 <td className="px-lg py-md text-right">
                   <div className="flex justify-end gap-sm items-center">
                     {t.status === 'Resolved' ? (
-                      <span className={`px-sm py-[2px] border rounded font-label-sm ${statusStyles.Resolved}`}>Resolved</span>
+                      <span className={`px-2 py-0.5 border rounded text-xs font-semibold ${statusStyles.Resolved}`}>Resolved</span>
                     ) : (
                       <>
-                        <button className="px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90">Reply</button>
+                        <button className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-colors">Reply</button>
                         <button
                           onClick={() => onResolve?.(t.id)}
                           disabled={resolvingId === t.id}
-                          className="px-md py-sm border border-outline text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-high disabled:opacity-50"
+                          className="px-3 py-1.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                         >
                           {resolvingId === t.id ? 'Resolving...' : 'Resolve'}
                         </button>
@@ -97,33 +97,32 @@ export default function TicketTable({ tickets, variant, onResolve, resolvingId, 
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-surface-container-low border-b border-outline-variant">
-            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>TICKET ID</th>
-            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>SUBJECT</th>
-            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>STATUS</th>
-            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>PRIORITY</th>
+          <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+            {(['TICKET ID', 'SUBJECT', 'STATUS', 'PRIORITY'] as const).map((h) => (
+              <th key={h} className={`text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>{h}</th>
+            ))}
             {!compact && (
-              <th className={`font-label-md text-secondary uppercase tracking-wider text-right ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>ACTION</th>
+              <th className={`text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-right ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>ACTION</th>
             )}
           </tr>
         </thead>
-        <tbody className="divide-y divide-outline-variant">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
           {tickets.map((t) => (
-            <tr key={t.id} className="hover:bg-surface-container-low transition-colors">
-              <td className={`font-label-sm text-primary ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>{t.id}</td>
-              <td className={`font-body-sm font-medium ${compact ? 'px-md py-sm truncate max-w-[120px]' : 'px-lg py-md'}`}>{t.subject}</td>
+            <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+              <td className={`text-sm font-semibold text-indigo-600 dark:text-indigo-400 ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>{t.id}</td>
+              <td className={`text-sm text-slate-700 dark:text-slate-300 ${compact ? 'px-md py-sm truncate max-w-[120px]' : 'px-lg py-md'}`}>{t.subject}</td>
               <td className={`${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>
-                <span className={`px-sm py-[2px] border rounded font-label-sm text-[11px] ${statusStyles[t.status] || ''}`}>{t.status}</span>
+                <span className={`px-2 py-0.5 border rounded text-xs font-semibold ${statusStyles[t.status] || ''}`}>{t.status}</span>
               </td>
               <td className={`${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>
                 <div className="flex items-center gap-sm">
                   <div className={`w-1 h-4 rounded-full ${priorityDot[t.priority] || priorityDot.Normal}`} />
-                  <span className={`${compact ? 'font-label-sm text-[11px]' : 'font-body-sm'}`}>{t.priority}</span>
+                  <span className={`text-sm text-slate-600 dark:text-slate-300 ${compact ? 'text-xs' : ''}`}>{t.priority}</span>
                 </div>
               </td>
               {!compact && (
                 <td className="px-lg py-md text-right">
-                  <button className="text-primary font-bold text-label-md hover:underline">View Detail</button>
+                  <button className="text-indigo-600 dark:text-indigo-400 font-semibold text-xs hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">View Detail</button>
                 </td>
               )}
             </tr>
