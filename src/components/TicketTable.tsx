@@ -1,10 +1,11 @@
-import { Ticket } from '../types'
+﻿import { Ticket } from '../types'
 
 interface TicketTableProps {
   tickets: Ticket[]
   variant: 'admin' | 'client'
   onResolve?: (id: string) => void
   resolvingId?: string | null
+  compact?: boolean
 }
 
 const priorityColors: Record<string, string> = {
@@ -29,7 +30,7 @@ const priorityDot: Record<string, string> = {
   Normal: 'bg-primary',
 }
 
-export default function TicketTable({ tickets, variant, onResolve, resolvingId }: TicketTableProps) {
+export default function TicketTable({ tickets, variant, onResolve, resolvingId, compact }: TicketTableProps) {
   if (variant === 'admin') {
     return (
       <div className="overflow-x-auto">
@@ -97,30 +98,34 @@ export default function TicketTable({ tickets, variant, onResolve, resolvingId }
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-surface-container-low border-b border-outline-variant">
-            <th className="px-lg py-md font-label-md text-secondary uppercase tracking-wider">TICKET ID</th>
-            <th className="px-lg py-md font-label-md text-secondary uppercase tracking-wider">SUBJECT</th>
-            <th className="px-lg py-md font-label-md text-secondary uppercase tracking-wider">STATUS</th>
-            <th className="px-lg py-md font-label-md text-secondary uppercase tracking-wider">PRIORITY</th>
-            <th className="px-lg py-md font-label-md text-secondary uppercase tracking-wider text-right">ACTION</th>
+            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>TICKET ID</th>
+            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>SUBJECT</th>
+            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>STATUS</th>
+            <th className={`font-label-md text-secondary uppercase tracking-wider ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>PRIORITY</th>
+            {!compact && (
+              <th className={`font-label-md text-secondary uppercase tracking-wider text-right ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>ACTION</th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-outline-variant">
           {tickets.map((t) => (
             <tr key={t.id} className="hover:bg-surface-container-low transition-colors">
-              <td className="px-lg py-md font-label-sm text-primary">{t.id}</td>
-              <td className="px-lg py-md font-body-sm font-medium">{t.subject}</td>
-              <td className="px-lg py-md">
-                <span className={`px-sm py-[2px] border rounded font-label-sm ${statusStyles[t.status] || ''}`}>{t.status}</span>
+              <td className={`font-label-sm text-primary ${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>{t.id}</td>
+              <td className={`font-body-sm font-medium ${compact ? 'px-md py-sm truncate max-w-[120px]' : 'px-lg py-md'}`}>{t.subject}</td>
+              <td className={`${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>
+                <span className={`px-sm py-[2px] border rounded font-label-sm text-[11px] ${statusStyles[t.status] || ''}`}>{t.status}</span>
               </td>
-              <td className="px-lg py-md">
+              <td className={`${compact ? 'px-md py-sm' : 'px-lg py-md'}`}>
                 <div className="flex items-center gap-sm">
                   <div className={`w-1 h-4 rounded-full ${priorityDot[t.priority] || priorityDot.Normal}`} />
-                  <span className="font-body-sm">{t.priority}</span>
+                  <span className={`${compact ? 'font-label-sm text-[11px]' : 'font-body-sm'}`}>{t.priority}</span>
                 </div>
               </td>
-              <td className="px-lg py-md text-right">
-                <button className="text-primary font-bold text-label-md hover:underline">View Detail</button>
-              </td>
+              {!compact && (
+                <td className="px-lg py-md text-right">
+                  <button className="text-primary font-bold text-label-md hover:underline">View Detail</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
