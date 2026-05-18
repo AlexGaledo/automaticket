@@ -1,0 +1,98 @@
+import { Ticket, DashboardStats } from '../types'
+
+export const mockStats: DashboardStats = {
+  totalTickets: 1284,
+  aiResolved: 942,
+  aiRate: '73%',
+  awaitingAdmin: 14,
+  avgResolution: '18m 42s',
+  escalatedToday: 8,
+  activeTickets: 124,
+  responseTime: '1.4m',
+}
+
+export const mockAdminTickets: Ticket[] = [
+  {
+    id: '#TK-8842',
+    clientName: 'Jordan Smith',
+    initials: 'JS',
+    subject: 'Payment gateway failure on checkout page 3 during peak traffic event.',
+    status: 'Escalated',
+    priority: 'High',
+    timeAgo: '4m ago',
+    borderColor: 'border-l-error',
+  },
+  {
+    id: '#TK-8840',
+    clientName: 'Alice Moore',
+    initials: 'AM',
+    subject: 'Request for manual bulk data export for quarterly compliance audit.',
+    status: 'Escalated',
+    priority: 'Med',
+    timeAgo: '12m ago',
+    borderColor: 'border-l-tertiary',
+  },
+  {
+    id: '#TK-8839',
+    clientName: 'Robert King',
+    initials: 'RK',
+    subject: 'Incorrect shipping address format in user profile settings.',
+    status: 'Escalated',
+    priority: 'Low',
+    timeAgo: '28m ago',
+    borderColor: 'border-l-secondary',
+  },
+  {
+    id: '#TK-8837',
+    clientName: 'Helen White',
+    initials: 'HW',
+    subject: 'Account lockout after multiple failed login attempts from unknown IP.',
+    status: 'Escalated',
+    priority: 'High',
+    timeAgo: '41m ago',
+    borderColor: 'border-l-error',
+  },
+]
+
+export const mockClientTickets: Ticket[] = [
+  {
+    id: '#TK-89021',
+    clientName: '',
+    initials: '',
+    subject: 'Cloud sync failure on enterprise accounts',
+    status: 'Resolved',
+    priority: 'Normal',
+    timeAgo: '',
+    borderColor: '',
+  },
+  {
+    id: '#TK-89025',
+    clientName: '',
+    initials: '',
+    subject: 'Bulk API endpoint returning 500 errors',
+    status: 'In Progress',
+    priority: 'Urgent',
+    timeAgo: '',
+    borderColor: '',
+  },
+  {
+    id: '#TK-88998',
+    clientName: '',
+    initials: '',
+    subject: 'Billing discrepancy for Q3 period',
+    status: 'Escalated',
+    priority: 'Med',
+    timeAgo: '',
+    borderColor: '',
+  },
+  {
+    id: '#TK-89044',
+    clientName: '',
+    initials: '',
+    subject: 'New automation flow logic validation',
+    status: 'In Progress',
+    priority: 'Normal',
+    timeAgo: '',
+    borderColor: '',
+  },
+]

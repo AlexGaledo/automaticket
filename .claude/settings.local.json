@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(python -c \"from app.api.v1.tickets import tickets_router; print\\('OK'\\)\")"
+    ]
+  }
+}
