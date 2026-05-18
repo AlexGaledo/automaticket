@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { processAiQuery, createTicket } from '../services/api'
 
 interface Message {
@@ -14,15 +14,15 @@ interface AIAssistantProps {
 
 export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: "Hi! I'm your AI assistant. How can I help you today?" },
+    { role: 'assistant', text: "Hello — describe what's troubling you and I'll do my best to resolve it on the spot." },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
   const quickActions = [
-    'Check status #TK-89025',
-    'Optimize Flow Alpha',
-    'Export report',
+    'Status of ticket TK-89025',
+    'Reset my password',
+    'Export this month\'s report',
   ]
 
   async function handleSend(text: string) {
@@ -35,36 +35,27 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
 
     try {
       const result = await processAiQuery(msg)
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', text: result.response },
-      ])
+      setMessages((prev) => [...prev, { role: 'assistant', text: result.response }])
 
       if (result.should_escalate) {
         try {
-          const subject = msg.length > 80 ? msg.slice(0, 80) + '...' : msg
+          const subject = msg.length > 80 ? msg.slice(0, 80) + '…' : msg
           const ticket = await createTicket(subject, msg, 'High', 'Escalated')
           setMessages((prev) => [
             ...prev,
             {
               role: 'assistant',
-              text: `I couldn't fully resolve that. I've automatically created ticket ${ticket.id} on your behalf — our team will follow up shortly.`,
+              text: `I couldn't fully resolve that one. I've opened ticket ${ticket.id} on your behalf — a human operator will pick it up shortly.`,
               isTicketNotice: true,
             },
           ])
           onTicketCreated?.()
         } catch {
-          setMessages((prev) => [
-            ...prev,
-            { role: 'assistant', text: 'I tried to open a ticket on your behalf but the request failed. Please try again.' },
-          ])
+          setMessages((prev) => [...prev, { role: 'assistant', text: 'Tried to open a ticket but the request failed. Please try again.' }])
         }
       }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', text: 'Sorry, I encountered an error. Please try again.' },
-      ])
+      setMessages((prev) => [...prev, { role: 'assistant', text: 'Sorry — I hit an error. Please retry.' }])
     } finally {
       setLoading(false)
     }
@@ -77,182 +68,128 @@ export default function AIAssistant({ onTicketCreated, variant = 'drawer' }: AIA
     }
   }
 
-  if (variant === 'page') {
-    return (
-      <div className="flex flex-col h-full rounded-xl border border-slate-200 dark:border-slate-700 shadow-card bg-white dark:bg-slate-800 overflow-hidden theme-dark">
-        <div className="p-lg border-b border-slate-200 dark:border-slate-700 flex items-center gap-md bg-gradient-to-r from-indigo-50 to-indigo-50/80 dark:from-indigo-950/30 dark:to-indigo-950/20">
-          <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-600">
-            <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
+  const containerClass =
+    variant === 'page'
+      ? 'flex flex-col h-full card overflow-hidden'
+      : 'fixed right-0 top-0 h-screen w-[380px] z-50 flex flex-col card rounded-none border-l border-outline shadow-lift'
+
+  return (
+    <aside className={containerClass}>
+      {/* Header — moss accent for AI */}
+      <div className="px-lg py-md border-b border-outline-soft bg-outline-soft/50 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative w-10 h-10 rounded-full bg-moss-100 dark:bg-moss-800 ai-glow
+                          flex items-center justify-center">
+            <span className="material-symbols-outlined text-moss-500 dark:text-moss-100 text-[20px]"
+                  style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           </div>
           <div>
-            <h4 className="font-bold font-sans text-[18px] text-slate-900 dark:text-slate-100">AI Assistant</h4>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-tighter font-semibold">Active Now</span>
+            <h4 className="display text-headline-sm text-ink-900 leading-none">Assistant</h4>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="status-dot bg-moss-500 animate-pulse-soft" />
+              <span className="eyebrow text-moss-500 dark:text-moss-200">Listening</span>
             </div>
           </div>
         </div>
+        <span className="font-mono text-mono-xs text-ink-500 uppercase">v2.4</span>
+      </div>
 
-        <div className="flex-grow p-lg overflow-y-auto bg-slate-50/40 dark:bg-slate-900/30 space-y-lg scrollbar-thin">
-          {messages.map((m, i) => (
-            <div key={i} className="animate-fade-in-fast" style={{ animationDelay: `${i * 0.05}s` }}>
-              <div
-                className={`p-lg rounded-xl border shadow-sm font-body-md text-[15px] leading-relaxed max-w-[90%] theme-dark ${
-                  m.isTicketNotice
-                    ? 'rounded-tl-none bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-slate-800 dark:text-slate-200'
-                    : m.role === 'assistant'
-                    ? 'rounded-tl-none bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                    : 'rounded-br-none bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 ml-auto text-slate-800 dark:text-slate-200'
-                }`}
-              >
-                {m.isTicketNotice && (
-                  <div className="flex items-center gap-sm mb-xs text-red-600 dark:text-red-400 text-sm font-semibold">
-                    <span className="material-symbols-outlined text-[18px]">add_task</span>
-                    Ticket Created
+      {/* Messages */}
+      <div className="flex-grow px-lg py-md overflow-y-auto space-y-4 scrollbar-thin">
+        {messages.map((m, i) => {
+          if (m.isTicketNotice) {
+            return (
+              <div key={i} className="animate-fade-in-fast">
+                <div className="border-l-2 border-clay-500 pl-3 py-1 bg-clay-50 dark:bg-clay-900/30 rounded-r">
+                  <div className="eyebrow text-clay-500 mb-1 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">add_task</span>
+                    Ticket opened
                   </div>
-                )}
-                {m.text}
+                  <p className="text-body-md text-ink-900">{m.text}</p>
+                </div>
               </div>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block ml-1 font-medium uppercase tracking-wider">
-                {m.role === 'assistant' ? 'Assistant' : 'You'} &bull; Just Now
-              </span>
+            )
+          }
+          const isAssistant = m.role === 'assistant'
+          return (
+            <div key={i} className={`animate-fade-in-fast ${isAssistant ? '' : 'flex justify-end'}`}>
+              <div className={`max-w-[88%] ${isAssistant ? '' : ''}`}>
+                <div className={`eyebrow mb-1 ${isAssistant ? 'text-moss-500' : 'text-clay-500 text-right'}`}>
+                  {isAssistant ? '— Assistant' : 'You —'}
+                </div>
+                <div
+                  className={`px-4 py-3 rounded text-body-md leading-relaxed ${
+                    isAssistant
+                      ? 'surface-raised text-ink-900'
+                      : 'bg-clay-500 text-cream-50'
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
             </div>
-          ))}
+          )
+        })}
 
-          {messages.length === 1 && (
-            <div className="flex flex-wrap gap-sm">
+        {messages.length === 1 && (
+          <div className="pt-2">
+            <p className="eyebrow mb-2">Try</p>
+            <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
                 <button
                   key={action}
                   onClick={() => handleSend(action)}
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-md py-sm rounded-full text-sm text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:shadow-sm"
+                  className="px-3 py-1.5 rounded surface-raised text-body-sm text-ink-700
+                             border border-outline hover:border-moss-500 hover:text-moss-500 transition-colors"
                 >
                   {action}
                 </button>
               ))}
             </div>
-          )}
-
-          <div className="p-md bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-md theme-dark">
-            <span className="material-symbols-outlined text-indigo-500 dark:text-indigo-400 text-[20px]">info</span>
-            <p className="text-sm text-slate-500 dark:text-slate-400">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
-          </div>
-        </div>
-
-        <div className="p-lg border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 theme-dark">
-          <div className="relative">
-            <textarea
-              className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-md text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 theme-dark"
-              placeholder="Describe your issue or ask a question..."
-              rows={3}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <div className="absolute bottom-3 right-3 flex gap-sm">
-              <button className="p-sm text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                <span className="material-symbols-outlined">attach_file</span>
-              </button>
-              <button
-                onClick={() => handleSend(input)}
-                disabled={loading || !input.trim()}
-                className="bg-indigo-600 text-white p-sm rounded-lg shadow-sm active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700"
-              >
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
-              </button>
-            </div>
-          </div>
-          <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-3 font-medium">Powered by Automaticket Core AI v2.4</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <aside className="fixed right-0 top-0 h-screen w-[360px] bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 z-50 flex flex-col shadow-elevated theme-dark">
-      <div className="p-lg border-b border-slate-200 dark:border-slate-700 flex items-center gap-md bg-gradient-to-r from-indigo-50 to-indigo-50/80 dark:from-indigo-950/30 dark:to-indigo-950/20">
-        <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-600">
-          <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
-        </div>
-        <div>
-          <h4 className="font-bold font-sans text-[18px] text-slate-900 dark:text-slate-100">AI Assistant</h4>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-tighter font-semibold">Active Now</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-grow p-lg overflow-y-auto bg-slate-50/40 dark:bg-slate-900/30 space-y-lg scrollbar-thin">
-        {messages.map((m, i) => (
-          <div key={i}>
-            <div
-              className={`p-lg rounded-xl border shadow-sm font-body-md text-[15px] leading-relaxed max-w-[90%] theme-dark ${
-                m.isTicketNotice
-                  ? 'rounded-tl-none bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-slate-800 dark:text-slate-200'
-                  : m.role === 'assistant'
-                  ? 'rounded-tl-none bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                  : 'rounded-br-none bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-800 ml-auto text-slate-800 dark:text-slate-200'
-              }`}
-            >
-              {m.isTicketNotice && (
-                <div className="flex items-center gap-sm mb-xs text-red-600 dark:text-red-400 text-sm font-semibold">
-                  <span className="material-symbols-outlined text-[18px]">add_task</span>
-                  Ticket Created
-                </div>
-              )}
-              {m.text}
-            </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block ml-1 font-medium uppercase tracking-wider">
-              {m.role === 'assistant' ? 'Assistant' : 'You'} &bull; Just Now
-            </span>
-          </div>
-        ))}
-
-        {messages.length === 1 && (
-          <div className="flex flex-wrap gap-sm">
-            {quickActions.map((action) => (
-              <button
-                key={action}
-                onClick={() => handleSend(action)}
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-md py-sm rounded-full text-sm text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-600 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:shadow-sm"
-              >
-                {action}
-              </button>
-            ))}
           </div>
         )}
 
-        <div className="p-md bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-md theme-dark">
-          <span className="material-symbols-outlined text-indigo-500 dark:text-indigo-400 text-[20px]">info</span>
-          <p className="text-sm text-slate-500 dark:text-slate-400">If I can't resolve your issue, I'll automatically open a ticket so our team can step in.</p>
+        <div className="surface-inset rounded p-3 flex items-start gap-3 mt-4">
+          <span className="material-symbols-outlined text-moss-500 text-[18px] mt-0.5">info</span>
+          <p className="text-body-sm text-ink-700 text-pretty">
+            If I can't resolve your request, I'll open a ticket and route it to a human operator automatically.
+          </p>
         </div>
+
+        {loading && (
+          <div className="flex items-center gap-2 px-1">
+            <span className="status-dot bg-moss-500 animate-pulse-soft" />
+            <span className="eyebrow text-ink-500">Thinking…</span>
+          </div>
+        )}
       </div>
 
-      <div className="p-lg border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 theme-dark">
+      {/* Composer */}
+      <div className="border-t border-outline-soft px-lg py-md bg-surface">
         <div className="relative">
           <textarea
-            className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-md text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 theme-dark"
-            placeholder="Describe your issue or ask a question..."
+            className="field resize-none pr-20"
+            placeholder="Describe your issue…"
             rows={3}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <div className="absolute bottom-3 right-3 flex gap-sm">
-            <button className="p-sm text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              <span className="material-symbols-outlined">attach_file</span>
+          <div className="absolute bottom-2 right-2 flex gap-1 items-center">
+            <button className="btn btn-ghost p-1.5" aria-label="Attach">
+              <span className="material-symbols-outlined text-[18px]">attach_file</span>
             </button>
             <button
               onClick={() => handleSend(input)}
               disabled={loading || !input.trim()}
-              className="bg-indigo-600 text-white p-sm rounded-lg shadow-sm active:scale-95 transition-all flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700"
+              className="btn btn-primary p-1.5 disabled:opacity-40"
+              aria-label="Send"
             >
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
             </button>
           </div>
         </div>
-        <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-3 font-medium">Powered by Automaticket Core AI v2.4</p>
+        <p className="eyebrow text-center mt-2 text-ink-500">⏎ to send · Shift ⏎ for newline</p>
       </div>
     </aside>
   )

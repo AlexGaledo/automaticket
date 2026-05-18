@@ -2,105 +2,49 @@ import { useEffect, useState } from 'react'
 import { getKnowledge, updateKnowledge } from '../services/api'
 
 function renderMarkdown(md: string): string {
-  let html = md
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
+  let html = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const lines = html.split('\n')
   const out: string[] = []
   let inCodeBlock = false
   let codeBuf: string[] = []
 
+  const inline = (s: string) => s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code class="font-mono text-mono-sm bg-outline-soft px-1.5 py-0.5 rounded">$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-clay-500 underline underline-offset-2">$1</a>')
+
   for (const line of lines) {
     if (line.startsWith('```')) {
-      if (inCodeBlock) {
-        out.push(`<pre><code>${codeBuf.join('\n')}</code></pre>`)
-        codeBuf = []
-      }
+      if (inCodeBlock) { out.push(`<pre class="bg-outline-soft p-3 rounded font-mono text-mono-sm overflow-x-auto"><code>${codeBuf.join('\n')}</code></pre>`); codeBuf = [] }
       inCodeBlock = !inCodeBlock
       continue
     }
-    if (inCodeBlock) {
-      codeBuf.push(line)
+    if (inCodeBlock) { codeBuf.push(line); continue }
+
+    if (/^#{1,6}\s/.test(line)) {
+      const level = line.match(/^(#+)/)![1].length
+      const text = line.replace(/^#+\s+/, '')
+      const sizes = ['', 'text-headline-lg display', 'text-headline-md display', 'text-headline-sm', 'text-body-lg font-semibold']
+      out.push(`<h${level} class="${sizes[Math.min(level,4)]} text-ink-900 mt-6 mb-2">${inline(text)}</h${level}>`)
       continue
     }
-
-    let processed = line
-
-    if (/^#{1,6}\s/.test(processed)) {
-      const level = processed.match(/^(#+)/)![1].length
-      const text = processed.replace(/^#+\s+/, '')
-      out.push(`<h${level}>${text}</h${level}>`)
+    if (/^>\s/.test(line)) {
+      out.push(`<blockquote class="border-l-2 border-clay-500 pl-3 italic text-ink-700 my-2 display">${inline(line.replace(/^>\s+/, ''))}</blockquote>`)
       continue
     }
-
-    if (/^>\s/.test(processed)) {
-      processed = processed.replace(/^>\s+/, '')
-      processed = processed.replace(
-        /\*\*(.+?)\*\*/g, '<strong>$1</strong>'
-      ).replace(
-        /\*(.+?)\*/g, '<em>$1</em>'
-      ).replace(
-        /`(.+?)`/g, '<code>$1</code>'
-      ).replace(
-        /\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-indigo-600 dark:text-indigo-400 underline">$1</a>'
-      )
-      out.push(`<blockquote class="border-l-4 border-slate-300 dark:border-slate-600 pl-3 italic text-slate-600 dark:text-slate-400">${processed}</blockquote>`)
+    if (/^- /.test(line)) {
+      out.push(`<li class="ml-4 list-disc text-ink-700">${inline(line.replace(/^- /, ''))}</li>`)
       continue
     }
-
-    if (/^- /.test(processed)) {
-      processed = processed.replace(/^- /, '')
-      processed = processed.replace(
-        /\*\*(.+?)\*\*/g, '<strong>$1</strong>'
-      ).replace(
-        /\*(.+?)\*/g, '<em>$1</em>'
-      ).replace(
-        /`(.+?)`/g, '<code>$1</code>'
-      ).replace(
-        /\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-indigo-600 dark:text-indigo-400 underline">$1</a>'
-      )
-      out.push(`<li class="ml-4 list-disc">${processed}</li>`)
+    if (/^\d+\. /.test(line)) {
+      out.push(`<li class="ml-4 list-decimal text-ink-700">${inline(line.replace(/^\d+\. /, ''))}</li>`)
       continue
     }
-
-    if (/^\d+\. /.test(processed)) {
-      processed = processed.replace(/^\d+\. /, '')
-      processed = processed.replace(
-        /\*\*(.+?)\*\*/g, '<strong>$1</strong>'
-      ).replace(
-        /\*(.+?)\*/g, '<em>$1</em>'
-      ).replace(
-        /`(.+?)`/g, '<code>$1</code>'
-      ).replace(
-        /\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-indigo-600 dark:text-indigo-400 underline">$1</a>'
-      )
-      out.push(`<li class="ml-4 list-decimal">${processed}</li>`)
-      continue
-    }
-
-    processed = processed.replace(
-      /\*\*(.+?)\*\*/g, '<strong>$1</strong>'
-    ).replace(
-      /\*(.+?)\*/g, '<em>$1</em>'
-    ).replace(
-      /`(.+?)`/g, '<code>$1</code>'
-    ).replace(
-      /\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-indigo-600 dark:text-indigo-400 underline">$1</a>'
-    )
-
-    if (processed.trim() === '') {
-      out.push('')
-    } else {
-      out.push(`<p class="text-body-lg text-slate-700 dark:text-slate-300">${processed}</p>`)
-    }
+    if (line.trim() === '') { out.push(''); continue }
+    out.push(`<p class="text-body-md text-ink-700 leading-relaxed">${inline(line)}</p>`)
   }
-
-  if (inCodeBlock) {
-    out.push(`<pre><code>${codeBuf.join('\n')}</code></pre>`)
-  }
-
+  if (inCodeBlock) out.push(`<pre><code>${codeBuf.join('\n')}</code></pre>`)
   return out.join('\n')
 }
 
@@ -115,30 +59,19 @@ export default function KnowledgeEditor() {
 
   useEffect(() => {
     getKnowledge()
-      .then((res) => {
-        setContent(res.content)
-        setSavedContent(res.content)
-        setUpdatedAt(res.updated_at)
-      })
-      .catch(() => {
-        setMessage({ type: 'error', text: 'Failed to load knowledge base.' })
-      })
+      .then((res) => { setContent(res.content); setSavedContent(res.content); setUpdatedAt(res.updated_at) })
+      .catch(() => setMessage({ type: 'error', text: 'Failed to load knowledge base.' }))
       .finally(() => setLoading(false))
   }, [])
 
   async function handleSave() {
-    setSaving(true)
-    setMessage(null)
+    setSaving(true); setMessage(null)
     try {
       const res = await updateKnowledge(content)
-      setSavedContent(res.content)
-      setUpdatedAt(res.updated_at)
-      setMessage({ type: 'success', text: 'Knowledge base saved.' })
-    } catch {
-      setMessage({ type: 'error', text: 'Failed to save.' })
-    } finally {
-      setSaving(false)
-    }
+      setSavedContent(res.content); setUpdatedAt(res.updated_at)
+      setMessage({ type: 'success', text: 'Saved.' })
+    } catch { setMessage({ type: 'error', text: 'Save failed.' }) }
+    finally { setSaving(false) }
   }
 
   const hasChanges = content !== savedContent
@@ -146,122 +79,82 @@ export default function KnowledgeEditor() {
   const placeholder = `# Company Knowledge Base
 
 Write your company context, common issues, and solutions here.
-This content is injected into the AI's system prompt so it
-understands your business.
+This content is injected into the AI's system prompt.
 
 ## Suggested sections
 
 - **Company overview** — what your business does
 - **Common issues** — frequent problems and their solutions
 - **Escalation criteria** — when to escalate vs resolve
-- **Known workarounds** — step-by-step fixes for recurring bugs
-
-### Example:
 
 > Payment gateway timeouts during peak hours should be
-> resolved by routing through the backup provider.
-
-For technical issues, check \`/var/log/app/error.log\`.
+> routed through the backup provider.
 `
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-card overflow-hidden theme-dark">
-      <div className="p-lg border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/30 dark:to-violet-950/30">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-headline-md text-headline-md font-bold text-slate-900 dark:text-slate-100">Knowledge Base</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              Write context & rulebook — this is injected into the AI's system prompt
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {updatedAt && (
-              <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
-                Last saved {new Date(updatedAt).toLocaleString()}
-              </span>
-            )}
-            <button
-              onClick={() => setPreview(!preview)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                preview
-                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-700'
-                  : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600'
-              }`}
-            >
-              {preview ? 'Edit' : 'Preview'}
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving || !hasChanges}
-              className={`flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                hasChanges && !saving
-                  ? 'brand-gradient text-white shadow-sm hover:opacity-90 active:scale-95'
-                  : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-              }`}
-            >
-              {saving ? (
-                <>
-                  <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>save</span>
-                  Save
-                </>
-              )}
-            </button>
-          </div>
+    <section className="card overflow-hidden">
+      <header className="px-lg py-md border-b border-outline flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <span className="eyebrow">Source · System prompt</span>
+          <h2 className="display text-headline-md text-ink-900 mt-1">Knowledge base</h2>
+          <p className="text-body-sm text-ink-500 mt-0.5">Markdown injected into the assistant on every query.</p>
         </div>
-      </div>
+        <div className="flex items-center gap-2">
+          {updatedAt && (
+            <span className="font-mono text-mono-xs text-ink-500 hidden md:inline tabular">
+              Saved {new Date(updatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+            </span>
+          )}
+          <button
+            onClick={() => setPreview(!preview)}
+            className={`btn text-xs px-3 py-1.5 ${preview ? 'btn-secondary' : 'btn-ghost border border-outline'}`}
+          >
+            {preview ? '✎ Edit' : '⊙ Preview'}
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !hasChanges || loading}
+            className="btn btn-primary text-xs px-4 py-1.5 disabled:opacity-40"
+          >
+            {saving ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </header>
 
       {message && (
-        <div className={`px-lg py-2 text-sm ${
+        <div className={`px-lg py-2 text-body-sm border-b border-outline-soft ${
           message.type === 'success'
-            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-            : 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400'
+            ? 'bg-moss-50 text-moss-700 dark:bg-moss-800/30 dark:text-moss-100'
+            : 'bg-brick-50 text-brick-700 dark:bg-brick-700/20 dark:text-brick-100'
         }`}>
-          {message.type === 'success' ? (
-            <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">check_circle</span>
-          ) : (
-            <span className="material-symbols-outlined text-[16px] align-text-bottom mr-1">error</span>
-          )}
           {message.text}
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row">
-        <div className={`${preview ? 'hidden sm:block' : ''} sm:w-1/2 border-r-0 sm:border-r border-slate-200 dark:border-slate-700`}>
-          <div className="p-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Markdown</span>
+      <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-outline">
+        <div className={preview ? 'hidden sm:block' : ''}>
+          <div className="px-lg py-2 border-b border-outline-soft">
+            <span className="eyebrow">Markdown</span>
           </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={placeholder}
-            className="w-full h-[500px] p-lg font-mono text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 resize-none focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+            spellCheck={false}
+            className="w-full h-[520px] px-lg py-md font-mono text-mono-sm text-ink-900 bg-surface
+                       resize-none focus:outline-none placeholder:text-ink-300"
           />
         </div>
-
-        <div className={`${!preview ? 'hidden sm:block' : ''} sm:w-1/2`}>
-          <div className="p-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              {content.trim() ? 'Preview' : 'Preview — start typing above'}
-            </span>
+        <div className={!preview ? 'hidden sm:block' : ''}>
+          <div className="px-lg py-2 border-b border-outline-soft">
+            <span className="eyebrow">{content.trim() ? 'Preview' : 'Preview — start typing'}</span>
           </div>
           <div
-            className="h-[500px] overflow-y-auto p-lg prose prose-sm max-w-none"
+            className="h-[520px] overflow-y-auto px-lg py-md scrollbar-thin"
             dangerouslySetInnerHTML={{ __html: content.trim() ? renderMarkdown(content) : '' }}
           />
         </div>
       </div>
-
-      <div className="px-lg py-3 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          <span className="material-symbols-outlined text-[14px] align-text-bottom">info</span>
-          This content is injected into the AI system prompt on every query. Write in Markdown format.
-        </p>
-      </div>
-    </div>
+    </section>
   )
 }

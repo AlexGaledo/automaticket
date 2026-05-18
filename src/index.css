@@ -1,109 +1,229 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Soft Industrial — Design System v2
+   Cream surfaces · Ink type · Clay accent · Moss signal
+   Fraunces (display) + Inter Tight (body) + JetBrains Mono
+   ───────────────────────────────────────────────────────────── */
+
+/* LIGHT — cream surfaces, ink text, iris accent */
+:root {
+  --bg:         #F4EFE3;
+  --surface:    #FBF7EC;
+  --raised:     #FFFFFF;
+  --ink-900:    #16121E;
+  --ink-700:    #3A3445;
+  --ink-500:    #6C6478;
+  --ink-300:    #B5ADBE;
+  --outline:    #DED5C5;
+  --outline-soft: #EBE3D2;
+  --clay:       #5839B8;   /* iris violet */
+  --clay-soft:  #EFEAFB;
+  --moss:       #5C7548;
+  --moss-soft:  #EDF1E5;
+  --ochre:      #C89A3F;
+  --brick:      #9C3A2C;
+  --grain-opacity: 0.04;
+}
+
+/* DARK — true inversion: violet-black bg, paper text, iris brightened */
+.dark {
+  --bg:         #0A0812;
+  --surface:    #15101F;
+  --raised:     #1E172B;
+  --ink-900:    #F2EDE0;
+  --ink-700:    #C9C2B5;
+  --ink-500:    #8A8294;
+  --ink-300:    #4A4258;
+  --outline:    #2E2638;
+  --outline-soft: #221C2C;
+  --clay:       #9E85F0;   /* iris brightened for dark */
+  --clay-soft:  #1C1230;
+  --moss:       #A8BB87;
+  --moss-soft:  #1E2618;
+  --ochre:      #E2C57A;
+  --brick:      #E08A7C;
+  --grain-opacity: 0.05;
+}
 
 @layer base {
   html {
     @apply antialiased;
+    font-feature-settings: "ss01", "ss02", "cv11";
   }
 
   body {
-    @apply bg-background text-on-background font-sans;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    background: var(--bg);
+    color: var(--ink-900);
+    font-family: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    position: relative;
+  }
+
+  /* Paper-grain overlay — gives surfaces tactile texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+  }
+
+  .dark body::before { mix-blend-mode: screen; }
+
+  /* Numeric data — tabular figures */
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Display headings — slight optical italic */
+  .display {
+    font-family: 'Fraunces', ui-serif, Georgia, serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 96, "SOFT" 50;
   }
 }
 
 @layer components {
-  .bg-app-gradient {
-    background:
-      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(79 70 229 / 0.05) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(124 58 237 / 0.04) 0%, transparent 50%),
-      #F8FAFC;
+  /* ─── Surfaces ─── */
+  .surface {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+  }
+  .surface-raised {
+    background: var(--raised);
+    border: 1px solid var(--outline);
+  }
+  .surface-inset {
+    background: var(--outline-soft);
+    border: 1px solid var(--outline);
   }
 
-  .dark .bg-app-gradient {
-    background:
-      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(129 140 248 / 0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(167 139 250 / 0.06) 0%, transparent 50%),
-      #0F172A;
+  /* ─── Cards ─── */
+  .card {
+    @apply surface-raised rounded-lg shadow-paper;
+    position: relative;
+    z-index: 2;
+  }
+  .dark .card {
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.4), 0 2px 12px rgb(0 0 0 / 0.35);
+  }
+  .card-quiet {
+    @apply surface rounded-lg;
+    position: relative;
+    z-index: 2;
   }
 
-  .bg-app-gradient-intense {
-    background:
-      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(79 70 229 / 0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(124 58 237 / 0.06) 0%, transparent 50%),
-      #FFFFFF;
+  /* ─── Buttons ─── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded
+           text-sm font-medium tracking-tight transition-all
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-500/40
+           active:scale-[0.98];
+    font-family: 'Inter Tight', sans-serif;
+  }
+  .btn-primary {
+    background: var(--clay);
+    color: #FDFBF6;
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.15);
+  }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-secondary {
+    @apply surface-raised text-ink-900 dark:text-ink-700;
+    box-shadow: 0 1px 0 rgb(58 26 15 / 0.04);
+  }
+  .btn-secondary:hover { background: var(--outline-soft); }
+  .btn-ghost { color: var(--ink-700); }
+  .btn-ghost:hover { background: var(--outline-soft); }
+
+  /* ─── Badges / Chips ─── */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm font-mono text-mono-xs uppercase;
+    letter-spacing: 0.08em;
+  }
+  .chip-moss  { background: var(--moss-soft); color: var(--moss); }
+  .chip-clay  { background: var(--clay-soft); color: var(--clay); }
+  .chip-ochre { background: rgb(245 232 200 / 1); color: var(--ochre); }
+  .dark .chip-ochre { background: rgb(140 106 34 / 0.18); }
+  .chip-brick { background: rgb(251 232 229 / 1); color: var(--brick); }
+  .dark .chip-brick { background: rgb(110 37 27 / 0.25); }
+  .chip-neutral { background: var(--outline-soft); color: var(--ink-700); }
+
+  /* ─── Status dot ─── */
+  .status-dot {
+    @apply inline-block w-1.5 h-1.5 rounded-full;
   }
 
-  .dark .bg-app-gradient-intense {
-    background:
-      radial-gradient(ellipse 80% 50% at 0% 0%, rgb(129 140 248 / 0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 30% at 100% 100%, rgb(167 139 250 / 0.10) 0%, transparent 50%),
-      #1E293B;
+  /* ─── Inputs ─── */
+  .field {
+    @apply w-full px-3 py-2.5 rounded
+           surface-raised text-ink-900 text-sm
+           placeholder:text-ink-300
+           focus:outline-none focus:ring-2 focus:ring-clay-500/30 focus:border-clay-500
+           transition-colors;
+  }
+  .dark .field { color: var(--ink-900); }
+
+  /* ─── Eyebrow label ─── */
+  .eyebrow {
+    @apply font-mono text-mono-xs uppercase text-ink-500;
+    letter-spacing: 0.14em;
   }
 
-  .bg-header-gradient {
-    background:
-      linear-gradient(135deg, rgb(79 70 229 / 0.06), rgb(124 58 237 / 0.04)),
-      #FFFFFF;
+  /* ─── Rule (decorative divider) ─── */
+  .rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--outline) 20%, var(--outline) 80%, transparent);
+  }
+  .rule-thick {
+    height: 1px;
+    background: var(--ink-900);
+    opacity: 0.92;
   }
 
-  .dark .bg-header-gradient {
-    background:
-      linear-gradient(135deg, rgb(129 140 248 / 0.10), rgb(167 139 250 / 0.08)),
-      #1E293B;
+  /* ─── KPI numerals ─── */
+  .numeral {
+    font-family: 'Fraunces', serif;
+    font-feature-settings: "tnum", "ss01";
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
   }
 
-  .card-gradient {
-    background: linear-gradient(135deg, #FFFFFF, #F8FAFC);
+  /* ─── AI shimmer glow (moss-tinted) ─── */
+  .ai-glow {
+    position: relative;
   }
-
-  .dark .card-gradient {
-    background: linear-gradient(135deg, #1E293B, #0F172A);
-  }
-
-  .card-hover {
-    @apply transition-all duration-200;
-  }
-
-  .card-hover:hover {
-    @apply shadow-card-hover -translate-y-0.5;
-  }
-
-  .dark .card-hover:hover {
-    box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
-  }
-
-  .brand-gradient {
-    @apply bg-gradient-to-r from-indigo-600 to-violet-600;
-  }
-
-  .brand-gradient-text {
-    @apply bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent;
+  .ai-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, transparent, var(--moss) 50%, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 
 @layer utilities {
-  .theme-dark {
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  }
+  .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty; }
 
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+    background: var(--outline);
+    border-radius: 3px;
   }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-500;
-  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--ink-300); }
 }
 
 .material-symbols-outlined {
@@ -113,9 +233,8 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #CBD5E1 transparent;
+  scrollbar-color: var(--outline) transparent;
 }
 
-.dark * {
-  scrollbar-color: #475569 transparent;
-}
+/* Above-the-grain layer for all interactive content */
+#root { position: relative; z-index: 2; }

@@ -1,7 +1,8 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import TicketTable from '../components/TicketTable'
 import KnowledgeEditor from '../components/KnowledgeEditor'
 import ThemeToggle from '../components/ThemeToggle'
+import StatCard from '../components/StatCard'
 import { mockAdminTickets } from '../data/mockTickets'
 import { listTickets, updateTicketStatus } from '../services/api'
 import { toTicket } from '../utils/tickets'
@@ -25,14 +26,10 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
     try {
       const list = await listTickets()
       setBackendTickets(list.map(toTicket))
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }
 
-  useEffect(() => {
-    refreshTickets()
-  }, [])
+  useEffect(() => { refreshTickets() }, [])
 
   async function handleResolve(id: string) {
     setResolvingId(id)
@@ -41,92 +38,129 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
       try {
         const rawId = id.startsWith('#') ? id.slice(1) : id
         await updateTicketStatus(rawId, 'Resolved')
-        setBackendTickets((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, status: 'Resolved' } : t)),
-        )
-      } catch {
-        // ignore
-      }
+        setBackendTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'Resolved' } : t)))
+      } catch { /* ignore */ }
     } else {
-      setMockTickets((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, status: 'Resolved' } : t)),
-      )
+      setMockTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'Resolved' } : t)))
     }
     setResolvingId(null)
   }
 
   const allTickets = [...backendTickets, ...mockTickets]
   const openCount = allTickets.filter((t) => t.status !== 'Resolved').length
+  const resolvedCount = allTickets.filter((t) => t.status === 'Resolved').length
+  const escalatedCount = allTickets.filter((t) => t.status === 'Escalated').length
 
   return (
-    <div className="min-h-screen bg-app-gradient flex flex-col">
-      <header className="fixed top-0 right-0 left-0 z-40 bg-header-gradient backdrop-blur-md border-b border-slate-200 dark:border-slate-700 h-16 flex justify-between items-center px-xl theme-dark">
-        <div className="flex items-center gap-md">
-          <div className="w-9 h-9 rounded-lg brand-gradient flex items-center justify-center shadow-sm">
-            <span className="material-symbols-outlined text-white text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+    <div className="min-h-screen flex flex-col">
+      {/* Editorial masthead */}
+      <header className="border-b border-outline">
+        <div className="max-w-max-width mx-auto px-xl py-md flex items-end justify-between">
+          <div className="flex items-baseline gap-6">
+            <h1 className="display text-headline-lg text-ink-900 leading-none">
+              <span className="italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}>auto</span>ticket<span className="text-clay-500">.</span>
+            </h1>
+            <span className="eyebrow hidden md:inline">Operator Console / Vol. II</span>
           </div>
-          <div>
-            <h1 className="font-headline-md font-bold brand-gradient-text">Automaticket</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 -mt-xs font-medium">Command Center</p>
+          <div className="flex items-center gap-3">
+            <span className="hidden md:flex items-center gap-2 eyebrow">
+              <span className="status-dot bg-moss-500 animate-pulse-soft" /> Live
+            </span>
+            <ThemeToggle dark={dark} onToggle={onToggleDark} />
+            <button onClick={onLogout} className="btn btn-ghost text-body-sm px-3">
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <ThemeToggle dark={dark} onToggle={onToggleDark} />
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors px-2 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <span className="material-symbols-outlined text-[20px]">logout</span>
-            <span className="text-sm hidden sm:inline font-medium">Logout</span>
-          </button>
+
+        {/* Thick rule */}
+        <div className="max-w-max-width mx-auto px-xl">
+          <div className="rule-thick" />
+        </div>
+
+        {/* Date / metadata strip */}
+        <div className="max-w-max-width mx-auto px-xl py-2 flex justify-between items-center text-ink-500 font-mono text-mono-xs uppercase tracking-widest">
+          <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+          <span>Tickets in queue · {openCount}</span>
+          <span className="hidden md:inline">Resolved today · {resolvedCount}</span>
         </div>
       </header>
 
-      <main className="flex-1 pt-16 animate-fade-in">
-        <div className="max-w-max-width mx-auto p-xl">
-          <div className="flex gap-1 mb-lg">
-            <button
-              onClick={() => setTab('tickets')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                tab === 'tickets'
-                  ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">confirmation_number</span>
-              Ticket Queue
-              {openCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs font-bold rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400">
-                  {openCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setTab('knowledge')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                tab === 'knowledge'
-                  ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/50 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">menu_book</span>
-              Knowledge Base
-            </button>
+      <main className="flex-1 animate-fade-in">
+        <div className="max-w-max-width mx-auto px-xl py-xl">
+
+          {/* Page title — editorial */}
+          <div className="mb-xl">
+            <span className="eyebrow text-clay-500">Section 02 — Operations</span>
+            <h2 className="display text-display-md text-ink-900 mt-2 text-balance">
+              <span className="italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 80, 'wght' 400" }}>What needs</span> your attention.
+            </h2>
+            <p className="text-body-lg text-ink-700 mt-2 max-w-2xl text-pretty">
+              The assistant resolved <span className="font-mono tabular text-moss-500">{resolvedCount}</span> requests automatically.
+              <span className="font-mono tabular text-clay-500"> {openCount}</span> have been routed here for human judgment.
+            </p>
+          </div>
+
+          {/* KPI strip */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-xl">
+            <StatCard series="01 / Queue" label="Open tickets" value={String(openCount).padStart(2,'0')} tone="ink" footer={<span className="eyebrow">↑ from yesterday</span>} />
+            <StatCard series="02 / Resolved" label="By assistant" value={String(resolvedCount).padStart(2,'0')} tone="moss" footer={<span className="chip chip-moss">AI</span>} />
+            <StatCard series="03 / Escalated" label="Needs review" value={String(escalatedCount).padStart(2,'0')} tone="clay" footer={<span className="chip chip-clay">Now</span>} />
+          </section>
+
+          {/* Tabs */}
+          <div className="flex gap-1 mb-md border-b border-outline">
+            <TabButton active={tab === 'tickets'} onClick={() => setTab('tickets')} num="01" label="Ticket queue" count={openCount} />
+            <TabButton active={tab === 'knowledge'} onClick={() => setTab('knowledge')} num="02" label="Knowledge base" />
           </div>
 
           {tab === 'tickets' && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-card overflow-hidden theme-dark">
-              <div className="p-lg border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-indigo-50/60 to-violet-50/60 dark:from-indigo-950/30 dark:to-violet-950/30">
-                <h2 className="font-headline-md text-headline-md font-bold text-slate-900 dark:text-slate-100">Escalated Ticket Queue</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manual intervention required for {openCount} tickets</p>
+            <section className="card overflow-hidden">
+              <div className="px-lg py-md border-b border-outline flex items-end justify-between flex-wrap gap-3">
+                <div>
+                  <span className="eyebrow">Manual intervention</span>
+                  <h3 className="display text-headline-md text-ink-900 mt-1">Escalated queue</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="btn btn-secondary text-xs px-3 py-1.5">Filter</button>
+                  <button className="btn btn-secondary text-xs px-3 py-1.5">Export</button>
+                </div>
               </div>
               <TicketTable tickets={allTickets} variant="admin" onResolve={handleResolve} resolvingId={resolvingId} />
-            </div>
+            </section>
           )}
 
           {tab === 'knowledge' && <KnowledgeEditor />}
         </div>
       </main>
+
+      <footer className="border-t border-outline mt-xl">
+        <div className="max-w-max-width mx-auto px-xl py-md flex justify-between items-center text-body-sm text-ink-500">
+          <p className="display italic" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 100" }}>Precision, with restraint.</p>
+          <p className="font-mono text-mono-xs uppercase tracking-widest">© Automaticket · v2.4</p>
+        </div>
+      </footer>
     </div>
+  )
+}
+
+function TabButton({ active, onClick, num, label, count }: {
+  active: boolean; onClick: () => void; num: string; label: string; count?: number;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative flex items-center gap-3 px-4 py-3 transition-colors ${
+        active ? 'text-ink-900' : 'text-ink-500 hover:text-ink-700'
+      }`}
+    >
+      <span className={`font-mono text-mono-xs ${active ? 'text-clay-500' : 'text-ink-300'}`}>{num}</span>
+      <span className="text-body-md tracking-tight">{label}</span>
+      {count !== undefined && count > 0 && (
+        <span className="chip chip-clay">{count}</span>
+      )}
+      {active && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-clay-500" />}
+    </button>
   )
 }
