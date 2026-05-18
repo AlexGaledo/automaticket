@@ -85,3 +85,27 @@ export async function updateKnowledge(content: string): Promise<KnowledgeResult>
   }
   return res.json()
 }
+
+export interface NotificationEmailResult {
+  email: string
+}
+
+export async function getNotificationEmail(): Promise<NotificationEmailResult> {
+  const res = await fetch(`${API_BASE}/settings/notification-email`)
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`)
+  }
+  return res.json()
+}
+
+export async function updateNotificationEmail(email: string): Promise<NotificationEmailResult> {
+  const res = await fetch(`${API_BASE}/settings/notification-email`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`)
+  }
+  return res.json()
+}

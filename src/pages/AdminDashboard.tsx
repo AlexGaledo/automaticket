@@ -4,11 +4,11 @@ import KnowledgeEditor from '../components/KnowledgeEditor'
 import ThemeToggle from '../components/ThemeToggle'
 import StatCard from '../components/StatCard'
 import { mockAdminTickets } from '../data/mockTickets'
-import { listTickets, updateTicketStatus } from '../services/api'
+import { listTickets, updateTicketStatus, getNotificationEmail, updateNotificationEmail } from '../services/api'
 import { toTicket } from '../utils/tickets'
 import { Ticket } from '../types'
 
-type Tab = 'tickets' | 'knowledge'
+type Tab = 'tickets' | 'knowledge' | 'settings'
 
 interface AdminDashboardProps {
   onLogout: () => void
@@ -21,6 +21,11 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
   const [backendTickets, setBackendTickets] = useState<Ticket[]>([])
   const [mockTickets, setMockTickets] = useState<Ticket[]>(mockAdminTickets)
   const [resolvingId, setResolvingId] = useState<string | null>(null)
+  const [notifEmail, setNotifEmail] = useState('')
+  const [savedNotifEmail, setSavedNotifEmail] = useState('')
+  const [savingEmail, setSavingEmail] = useState(false)
+  const [emailLoading, setEmailLoading] = useState(true)
+  const [emailMessage, setEmailMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   async function refreshTickets() {
     try {
@@ -30,6 +35,23 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
   }
 
   useEffect(() => { refreshTickets() }, [])
+
+  useEffect(() => {
+    getNotificationEmail()
+      .then((res) => { setNotifEmail(res.email); setSavedNotifEmail(res.email) })
+      .catch(() => setEmailMessage({ type: 'error', text: 'Failed to load notification email.' }))
+      .finally(() => setEmailLoading(false))
+  }, [])
+
+  async function handleSaveEmail() {
+    setSavingEmail(true); setEmailMessage(null)
+    try {
+      const res = await updateNotificationEmail(notifEmail)
+      setSavedNotifEmail(res.email)
+      setEmailMessage({ type: 'success', text: 'Notification email saved.' })
+    } catch { setEmailMessage({ type: 'error', text: 'Save failed.' }) }
+    finally { setSavingEmail(false) }
+  }
 
   async function handleResolve(id: string) {
     setResolvingId(id)
@@ -113,6 +135,7 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
           <div className="flex gap-1 mb-md border-b border-outline">
             <TabButton active={tab === 'tickets'} onClick={() => setTab('tickets')} num="01" label="Ticket queue" count={openCount} />
             <TabButton active={tab === 'knowledge'} onClick={() => setTab('knowledge')} num="02" label="Knowledge base" />
+            <TabButton active={tab === 'settings'} onClick={() => setTab('settings')} num="03" label="Settings" />
           </div>
 
           {tab === 'tickets' && (
@@ -132,6 +155,57 @@ export default function AdminDashboard({ onLogout, dark, onToggleDark }: AdminDa
           )}
 
           {tab === 'knowledge' && <KnowledgeEditor />}
+
+          {tab === 'settings' && (
+            <section className="card overflow-hidden">
+              <header className="px-lg py-md border-b border-outline">
+                <div>
+                  <span className="eyebrow">Configuration</span>
+                  <h2 className="display text-headline-md text-ink-900 mt-1">Notification email</h2>
+                  <p className="text-body-sm text-ink-500 mt-0.5">Email address where ticket notifications will be sent.</p>
+                </div>
+              </header>
+
+              {emailMessage && (
+                <div className={`px-lg py-2 text-body-sm border-b border-outline-soft ${
+                  emailMessage.type === 'success'
+                    ? 'bg-moss-50 text-moss-700 dark:bg-moss-800/30 dark:text-moss-100'
+                    : 'bg-brick-50 text-brick-700 dark:bg-brick-700/20 dark:text-brick-100'
+                }`}>
+                  {emailMessage.text}
+                </div>
+              )}
+
+              <div className="px-lg py-lg space-y-4">
+                <div>
+                  <label className="eyebrow block mb-2">Email address</label>
+                  <input
+                    type="email"
+                    value={notifEmail}
+                    onChange={(e) => setNotifEmail(e.target.value)}
+                    placeholder="notifications@example.com"
+                    className="w-full max-w-md px-4 py-2.5 font-mono text-mono-sm text-ink-900 bg-surface
+                               border border-outline rounded focus:outline-none focus:border-clay-500
+                               placeholder:text-ink-300"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleSaveEmail}
+                    disabled={savingEmail || emailLoading || notifEmail === savedNotifEmail}
+                    className="btn btn-primary text-xs px-4 py-1.5 disabled:opacity-40"
+                  >
+                    {savingEmail ? 'Saving…' : 'Save'}
+                  </button>
+                  {savedNotifEmail && (
+                    <span className="font-mono text-mono-xs text-ink-500 tabular">
+                      Current: {savedNotifEmail}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
         </div>
       </main>
 
